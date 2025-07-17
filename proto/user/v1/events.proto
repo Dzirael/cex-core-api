@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "cex-core-api/gen/user/v1;user_v1";
+
+message UserCreatedEvent {
+  string id = 1;
+  string name = 2;
+  string surname = 3;
+  string email = 4;
+}

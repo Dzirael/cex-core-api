@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "cex-core-api/gen/order/v1;order_v1";
+
+import "google/api/annotations.proto";
+import "order/v1/requests.proto";
+import "order/v1/response.proto";
+
+service OrderService {
+  rpc GetSupportedPairs(GetSupportedPairsRequest) returns (GetSupportedPairsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/order"
+    };
+  }
+
+  rpc GetOrderPair(GetOrderPairRequest) returns (GetOrderPairResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/order/{pair}"
+    };
+  }
+
+  rpc GetOrderPairChart(GetOrderPairChartRequest) returns (GetOrderPairChartResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/order/{pair}/chart"
+    };
+  }
+
+  rpc GetOrderHistory(GetOrderHistoryRequest) returns (GetOrderHistoryResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/order/history"
+      body: "*"
+    };
+  }
+
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/order/{pair}/create"
+      body: "*"
+    };
+  }
+
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/order/{pair}/cancel"
+      body: "*"
+    };
+  }
+
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/order/{pair}/update"
+      body: "*"
+    };
+  }
+
+  rpc StreamOrderUpdates(StreamOrderUpdatesRequest) returns (stream StreamOrderUpdatesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/order/updates"
+    };
+  }
+
+  rpc StreamOrderBook(StreamOrderBookRequest) returns (stream StreamOrderBookResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/order/{pair}/updates"
+    };
+  }
+}

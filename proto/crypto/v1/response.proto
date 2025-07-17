@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package crypto.v1;
+
+option go_package = "cex-core-api/gen/crypto/v1;crypto_v1";
+
+import "crypto/v1/messages.proto";
+
+message GetSupportedChainsResponse {
+  repeated Chain chains = 1;
+}
+
+message GetSupportedTokensResponse {
+  repeated Token tokens = 1;
+}

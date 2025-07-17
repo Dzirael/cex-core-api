@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "cex-core-api/gen/order/v1;order_v1";
+
+enum OrderType {
+  ORDER_TYPE_UNSPECIFIED = 0; 
+  ORDER_TYPE_LIMIT = 1;
+  ORDER_TYPE_MARKET = 2;
+}
+    
+enum OrderMethod {
+  ORDER_METHOD_UNSPECIFIED = 0;
+  ORDER_METHOD_FOK = 1;
+  ORDER_METHOD_IOC = 2;
+  ORDER_METHOD_GTC = 3;
+}
+
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_CREATED = 1;
+  ORDER_STATUS_ACTIVE = 2;
+  ORDER_STATUS_PARTIALY_FILLED = 3;
+  ORDER_STATUS_FILLED = 4;
+  ORDER_STATUS_CANCELED = 5;
+}
+
+enum OrderEvent {
+  ORDER_EVENT_UNSPECIFIED = 0;
+  ORDER_EVENT_CREATED = 1;
+  ORDER_EVENT_FILLED = 2;
+  ORDER_EVENT_PARTIALLY_FILLED = 3;
+  ORDER_EVENT_CANCELED = 4;
+  ORDER_EVENT_UPDATED = 5;
+}
+
+message EventOrderCreated {
+  string order_id = 1;
+}
