@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "cex-core-api/gen/user/v1;user_v1";
+
+import "validate/validate.proto";
+
+message GetUserRequest {}
+
+message CreateUserRequest {
+  string email = 1 [(validate.rules).string = {email: true}];
+  string name = 2 [(validate.rules).string = {min_len: 3, max_len: 50}];
+  string surname = 3 [(validate.rules).string = {min_len: 3, max_len: 50}];
+  string salt = 4 [(validate.rules).string = {min_len: 16}];
+  string hash = 5 [(validate.rules).string = {min_len: 32}];
+}
+
+message ListUserAccountsRequest {}
+
+message CreateUserAccountRequest {
+  string type = 1 [(validate.rules).string = {in: ["spot", "futures", "margin"]}];
+  string name = 2 [(validate.rules).string = {min_len: 3, max_len: 50}];
+}
+
+message AuthenticateRequest {
+  string email = 1 [(validate.rules).string = {email: true}];
+  string salt = 2 [(validate.rules).string = {min_len: 3, max_len: 50}];
+  string hash = 3 [(validate.rules).string = {min_len: 3, max_len: 50}];
+}

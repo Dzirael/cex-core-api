@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package crypto.v1;
+
+option go_package = "cex-core-api/gen/crypto/v1;crypto_v1";
+
+import "google/api/annotations.proto";
+import "crypto/v1/requests.proto";
+import "crypto/v1/response.proto";
+
+service CryptoService {
+  rpc GetSupportedChains(GetSupportedChainsRequest) returns (GetSupportedChainsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/chains"
+    };
+  }
+
+  rpc GetSupportedTokens(GetSupportedTokensRequest) returns (GetSupportedTokensResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/tokens"
+    };
+  }
+}

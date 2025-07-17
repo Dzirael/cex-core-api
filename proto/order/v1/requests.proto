@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "cex-core-api/gen/order/v1;order_v1";
+
+import "validate/validate.proto";
+import "order/v1/messages.proto";
+
+message GetSupportedPairsRequest {
+    optional uint32 limit = 2 [(validate.rules).uint32 = {lte: 100, gte: 1, ignore_empty: true}]; // max 100
+    optional uint32 offset = 3;
+}
+
+message GetOrderPairRequest {
+  string pair = 1 [(validate.rules).string = {min_len: 3, pattern: '^[A-Z0-9\\-]+$' }]; // e.g., "BTC-USDT"
+}
+
+message GetOrderPairChartRequest {
+  string pair = 1 [(validate.rules).string = {min_len: 3, pattern: "^[A-Z0-9\\-]+$"}];
+}
+
+message GetOrderHistoryRequest {
+  optional string pair = 1 [(validate.rules).string = {min_len: 3, pattern: "^[A-Z0-9\\-]+$", ignore_empty: true}];
+  optional OrderStatus status = 2;
+  optional uint32 limit = 3 [(validate.rules).uint32 = {lte: 100, gte: 1, ignore_empty: true}]; // max 100
+  optional uint32 offset = 4;
+}
+
+message CreateOrderRequest {
+  string pair = 1 [(validate.rules).string = {min_len: 3, pattern: "^[A-Z0-9\\-]+$"}];
+  OrderType order_type = 2 [(validate.rules).enum = {defined_only: true}];
+  OrderMethod order_method = 3 [(validate.rules).enum = {defined_only: true}];
+  double price = 4 [(validate.rules).double = {gt: 0}];     // price must be > 0
+  double quantity = 5 [(validate.rules).double = {gt: 0}];  // amount must be > 0
+}
+
+message CancelOrderRequest {
+  string pair = 1 [(validate.rules).string = {min_len: 3, pattern: "^[A-Z0-9\\-]+$"}];
+  string order_id = 2 [(validate.rules).string = {uuid: true}];
+}
+  
+message UpdateOrderRequest {
+  string pair = 1 [(validate.rules).string = {min_len: 3, pattern: "^[A-Z0-9\\-]+$"}];
+  string order_id = 2 [(validate.rules).string = {uuid: true}];
+  
+  oneof update_field {
+    double new_price = 3 [(validate.rules).double = {gte: 0}];
+    double new_quantity = 4 [(validate.rules).double = {gte: 0}];
+  }
+}
+
+message StreamOrderUpdatesRequest {}
+
+message StreamOrderBookRequest {
+  string pair = 1 [(validate.rules).string = {min_len: 3, pattern: "^[A-Z0-9\\-]+$"}];
+  uint32 depth = 2 [(validate.rules).uint32 = {lte: 10, gte: 1, ignore_empty: true}]; // max 10
+}

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package crypto.v1;
+
+option go_package = "cex-core-api/gen/crypto/v1;crypto_v1";
+
+import "validate/validate.proto";
+
+message GetSupportedChainsRequest {
+  optional string chain_id = 1 [(validate.rules).string = {in: ["evm", "solana", "btc"], ignore_empty: true}];
+  optional uint32 limit = 3 [(validate.rules).uint32 = {lte: 100, gte: 1, ignore_empty: true}]; // max 100
+  optional uint32 offset = 4; 
+}
+
+message GetSupportedTokensRequest {
+  optional string chain_id = 1 [(validate.rules).string = {uuid: true, ignore_empty: true}];
+  optional uint32 limit = 2 [(validate.rules).uint32 = {lte: 100, gte: 1, ignore_empty: true}]; // max 100
+  optional uint32 offset = 3;
+}

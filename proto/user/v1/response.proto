@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "cex-core-api/gen/user/v1;user_v1";
+
+import "user/v1/messages.proto";
+
+message AuthenticateResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message ListUserAccountsResponse {
+  repeated UserAccount accounts = 1;
+}
+  
+message CreateUserAccountResponse {
+  UserAccount account = 1;
+}

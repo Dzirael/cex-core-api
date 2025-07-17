@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "cex-core-api/gen/user/v1;user_v1";
+
+import "google/api/annotations.proto";
+import "user/v1/requests.proto";
+import "user/v1/response.proto";
+
+service UserService {
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/user/auth"
+    };
+  }
+
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/user"
+    };
+  }
+
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/user"
+      body: "*"
+    };
+  }
+
+  rpc ListUserAccounts(ListUserAccountsRequest) returns (ListUserAccountsResponse) {
+    option (google.api.http) = {
+      get: "/v1/user/accounts"
+    };
+  }
+
+  rpc CreateUserAccount(CreateUserAccountRequest) returns (CreateUserAccountResponse) {
+    option (google.api.http) = {
+      post: "/v1/user/accounts"
+      body: "*"
+    };
+  }
+}
