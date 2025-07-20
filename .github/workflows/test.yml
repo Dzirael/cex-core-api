@@ -22,7 +22,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          go test ./app/... -coverprofile=coverage.out -covermode=atomic
+          go test ./... -coverprofile=coverage.out -covermode=atomic
 
       - name: Generate HTML coverage report
         run: |
@@ -34,3 +34,4 @@ jobs:
         with:
           name: coverage-html
           path: coverage_html
+        
