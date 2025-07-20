@@ -14,7 +14,7 @@ jobs:
   build:
     name: Build & Push
     runs-on: ubuntu-latest
-    needs: verify
+    needs: test
     permissions:
       contents: read
       packages: write
