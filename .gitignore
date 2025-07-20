@@ -1,1 +1,3 @@
 coverage.out
+.env
+/app/cmd/test
