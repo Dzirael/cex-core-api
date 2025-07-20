@@ -1,11 +1,13 @@
 package users_repo_test
 
 import (
+	"context"
+	"testing"
+
+	"cex-core-api/app/internal/apperrors"
 	users_repo "cex-core-api/app/internal/storages/postgres/repository/users"
 	"cex-core-api/app/internal/storages/postgres/sqlc"
 	"cex-core-api/app/test/helpers"
-	"context"
-	"testing"
 
 	"github.com/google/uuid"
 	"github.com/test-go/testify/require"
@@ -143,6 +145,59 @@ func TestGetUserByID(t *testing.T) {
 					require.Error(t, err)
 					require.Nil(t, user)
 				}
+			}
+		})
+	}
+}
+
+func TestGetUserByEmail(t *testing.T) {
+	_, pool, repo := helpers.GetDatabaseContainer(t)
+	usersRepo := users_repo.NewUsersRepository(repo, pool)
+
+	type testCase struct {
+		name      string
+		email     string
+		expectErr bool
+		targetErr error
+	}
+
+	testCases := []testCase{
+		{
+			name:      "Get user with valid email",
+			email:     "some@email.com",
+			expectErr: false,
+			targetErr: nil,
+		},
+		{
+			name:      "Get user with non-existion email",
+			email:     "invalid@example.com",
+			expectErr: true,
+			targetErr: apperrors.ErrNotFound,
+		},
+	}
+
+	helpers.TruncateAllTables(t, pool)
+	userID := uuid.Must(uuid.NewV7())
+	params := sqlc.CreateUserParams{
+		UserID:  userID,
+		Email:   "some@email.com",
+		Name:    "Test",
+		Surname: "User",
+	}
+
+	_, err := usersRepo.CreateUser(t.Context(), params)
+	require.NoError(t, err)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			user, err := usersRepo.GetUserByEmail(t.Context(), tc.email)
+			if tc.expectErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+
+				require.NoError(t, err)
+				require.Equal(t, tc.email, user.Email)
+				require.Equal(t, userID, user.UserID)
 			}
 		})
 	}

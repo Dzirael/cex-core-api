@@ -1,12 +1,13 @@
 package vault
 
 import (
-	"cex-core-api/app/config"
-	"cex-core-api/app/pkg/utils"
 	"context"
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"cex-core-api/app/config"
+	"cex-core-api/app/pkg/utils"
 
 	"github.com/hashicorp/vault/api"
 )
@@ -77,7 +78,6 @@ func (v *Engine) authorize() error {
 		"role_id":   v.roleID,
 		"secret_id": v.secretID,
 	})
-
 	if err != nil {
 		return fmt.Errorf("approle login failed: %w", err)
 	}

@@ -55,7 +55,6 @@ func GetDatabaseContainer(t *testing.T) (testcontainers.Container, *pgxpool.Pool
 }
 
 func startPostgresContainer(ctx context.Context) (testcontainers.Container, error) {
-
 	const (
 		image   = "postgres:17.2"
 		port    = "5432/tcp"

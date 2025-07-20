@@ -50,7 +50,7 @@ func (c *UserCredentials) DecodeSecret() (any, error) {
 }
 
 func (c *UserCredentials) CanAuthorize(req any) error {
-	var authorizers = map[Type]CredentialAuthorizer{
+	authorizers := map[Type]CredentialAuthorizer{
 		"password": PasswordAuthorizer{},
 		"totp":     TOTPAuthorizer{},
 	}

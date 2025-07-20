@@ -1,18 +1,18 @@
 package vault_test
 
 import (
-	"cex-core-api/app/internal/storages/vault"
-	"cex-core-api/app/pkg/utils"
-	"cex-core-api/app/test/helpers"
 	"crypto/rand"
 	"encoding/base64"
 	"testing"
+
+	"cex-core-api/app/internal/storages/vault"
+	"cex-core-api/app/pkg/utils"
+	"cex-core-api/app/test/helpers"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestCreateHmac(t *testing.T) {
-
 	_ = helpers.GetVaultContainer(t)
 
 	testCfg := helpers.TestConfig()
@@ -42,5 +42,4 @@ func TestCreateHmac(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, firstResult.HMAC, secondResult.HMAC)
-
 }

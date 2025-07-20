@@ -1,10 +1,11 @@
 package users_repo
 
 import (
-	"cex-core-api/app/internal/models/credentials"
-	"cex-core-api/app/internal/storages/postgres/sqlc"
 	"context"
 	"fmt"
+
+	"cex-core-api/app/internal/models/credentials"
+	"cex-core-api/app/internal/storages/postgres/sqlc"
 
 	"github.com/google/uuid"
 )

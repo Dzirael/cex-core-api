@@ -1,17 +1,16 @@
 package helpers
 
 import (
-	"cex-core-api/app/config"
 	"time"
+
+	"cex-core-api/app/config"
 )
 
 func ToPointer[T any](v T) *T {
 	return &v
 }
 
-var (
-	vaultAddr = ""
-)
+var vaultAddr = ""
 
 func TestConfig() *config.Config {
 	return &config.Config{

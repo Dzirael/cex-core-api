@@ -1,12 +1,13 @@
 package users_repo_test
 
 import (
+	"context"
+	"testing"
+
 	"cex-core-api/app/internal/models/credentials"
 	users_repo "cex-core-api/app/internal/storages/postgres/repository/users"
 	"cex-core-api/app/internal/storages/postgres/sqlc"
 	"cex-core-api/app/test/helpers"
-	"context"
-	"testing"
 
 	"github.com/google/uuid"
 	"github.com/test-go/testify/require"
