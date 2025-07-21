@@ -63,8 +63,12 @@ jobs:
                --data '{"type":"aes256-gcm96"}' \
                $VAULT_ADDR/v1/transit/keys/passwords-key
 
-      - uses: mscno/setup-goose@v1
-      - run: goose -dir ./migrations postgres "postgres://test:test@localhost:5432/test?sslmode=disable" up
+      - name: Install goose
+        uses: mscno/setup-goose@v1
+      
+      - name: Apply migrations
+        run: |
+          goose -dir ./migrations postgres "postgres://test:test@localhost:5432/test?sslmode=disable" up
 
       - name: Run tests with coverage
         env: 
@@ -72,6 +76,12 @@ jobs:
           VAULT_URL: "http://localhost:8200"
         run: |
           go test ./... -coverprofile=coverage.txt -covermode=atomic
+      
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: coverage.txt
       
   code_coverage:
     name: "Code coverage report"
