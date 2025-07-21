@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -30,23 +31,25 @@ var (
 
 func GetDatabaseContainer(t *testing.T) (testcontainers.Container, *pgxpool.Pool, *sqlc.Queries) {
 	t.Helper()
+	ctx := t.Context()
 
 	postgresOnce.Do(func() {
-		ctx := context.Background()
+		dsn := os.Getenv("POSTGRES_DSN")
+		if dsn == "" {
+			container, err := startPostgresContainer(ctx)
+			require.NoError(t, err, "failed to start container")
 
-		container, err := startPostgresContainer(ctx)
-		require.NoError(t, err, "failed to start container")
+			postgresContainer = container
 
-		postgresContainer = container
+			dsn, err = buildPostgresDSN(ctx, container)
+			require.NoError(t, err, "failed to get container DSN")
 
-		dsn, err := buildPostgresDSN(ctx, container)
-		require.NoError(t, err, "failed to get container DSN")
+			// Apply migrations
+			require.NoError(t, applyMigrations(dsn), "failed to apply migrations")
+		}
 
-		pool, err = connectPgxPool(ctx, dsn)
+		pool, err := connectPgxPool(ctx, dsn)
 		require.NoError(t, err, "failed to connect pgx pool")
-
-		// Apply migrations
-		require.NoError(t, applyMigrations(dsn), "failed to apply migrations")
 
 		queries = sqlc.New(pool)
 	})
