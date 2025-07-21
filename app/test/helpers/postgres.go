@@ -48,8 +48,9 @@ func GetDatabaseContainer(t *testing.T) (testcontainers.Container, *pgxpool.Pool
 			require.NoError(t, applyMigrations(dsn), "failed to apply migrations")
 		}
 
-		pool, err := connectPgxPool(ctx, dsn)
+		newPool, err := connectPgxPool(ctx, dsn)
 		require.NoError(t, err, "failed to connect pgx pool")
+		pool = newPool
 
 		queries = sqlc.New(pool)
 	})
