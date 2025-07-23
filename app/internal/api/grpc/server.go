@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 
-	"cex-core-api/app/internal/service/order"
 	order_v1 "cex-core-api/gen/order/v1"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -27,7 +26,7 @@ func Run() {
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	order_v1.RegisterOrderServiceServer(s, &order.OrderService{})
+	// order_v1.RegisterOrderServiceServer(s, &order.OrderService{})
 
 	go func() {
 		log.Printf("gRPC server listening at %s", grpcAddr)
