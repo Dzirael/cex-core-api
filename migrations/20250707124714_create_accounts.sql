@@ -10,6 +10,21 @@ CREATE TABLE IF NOT EXISTS users (
     deleted_at TIMESTAMP
 );
 
+CREATE TYPE credentials_type AS ENUM ('password', 'totp', 'webauthn', 'passkey', 'phone_otp');
+
+CREATE TABLE credentials (
+    credential_id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    type credentials_type NOT NULL,
+    is_primary BOOLEAN NOT NULL DEFAULT false,
+    is_verified BOOLEAN NOT NULL DEFAULT false,
+    identifier TEXT,              -- email, phone, device id
+    secret_data JSONB NOT NULL, 
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    UNIQUE (user_id, type, identifier)
+);
+
 CREATE TYPE account_type AS ENUM ('spot', 'margin', 'futures');
 
 CREATE TABLE IF NOT EXISTS accounts (
@@ -36,7 +51,8 @@ ALTER TABLE account_balances
 ADD CONSTRAINT unique_account_token UNIQUE (account_id, token_id);
 
 CREATE TYPE change_type AS ENUM ('reduce', 'increase');
-CREATE TYPE change_action AS ENUM ('order', 'transfer');
+CREATE TYPE change_action AS ENUM ('order', 'transfer', 'withdraw', 'deposit');
+CREATE TYPE change_status AS ENUM ('created', 'pending', 'cancelled', 'completed', 'failed');
 
 CREATE TABLE IF NOT EXISTS account_balance_changes (
     change_id UUID PRIMARY KEY NOT NULL,
@@ -44,6 +60,7 @@ CREATE TABLE IF NOT EXISTS account_balance_changes (
     token_id UUID NOT NULL REFERENCES tokens(token_id) ON DELETE CASCADE,
     type change_type NOT NULL,
     action change_action NOT NULL,
+    status change_status NOT NULL,
     amount DECIMAL NOT NULL CHECK (amount >= 0),
     sender VARCHAR(50) NOT NULL,
     recipient VARCHAR(50) NOT NULL,
@@ -51,22 +68,6 @@ CREATE TABLE IF NOT EXISTS account_balance_changes (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP
 );
-
--- CREATE TYPE transfer_type AS ENUM ('deposit', 'withdraw');
-
-
--- CREATE TABLE IF NOT EXISTS account_chain_transfers (
---     transfer_id UUID PRIMARY KEY NOT NULL,
---     account_id UUID NOT NULL REFERENCES accounts(account_id) ON DELETE CASCADE,
---     token_id UUID NOT NULL REFERENCES tokens(token_id) ON DELETE CASCADE,
---     chain_id UUID NOT NULL REFERENCES chains(chain_id) ON DELETE CASCADE,
---     type transfer_type NOT NULL,
---     amount DECIMAL NOT NULL CHECK (amount >= 0),
---     recipient VARCHAR(50) NOT NULL,
---     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
---     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
---     deleted_at TIMESTAMP
--- );
 -- +goose StatementEnd
 
 -- +goose Down

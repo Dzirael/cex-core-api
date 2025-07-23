@@ -2,7 +2,7 @@ name: Docker Build & Push
 
 on:
   push:
-    tags: ["v*.*.*"] 
+    tags: ["v*.*.*"] # Only run when a version tag is created
 
 env:
   REGISTRY: ghcr.io
