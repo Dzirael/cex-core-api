@@ -75,7 +75,7 @@ jobs:
           POSTGRES_DSN: "postgres://test:test@localhost:5432/test?sslmode=disable"
           VAULT_URL: "http://localhost:8200"
         run: |
-          go test ./... -coverprofile=coverage.txt -covermode=atomic
+          go test -p 1 ./... -coverprofile=coverage.txt -covermode=atomic
       
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
