@@ -18,6 +18,8 @@ type Querier interface {
 	CreateBalanceTransfer(ctx context.Context, arg CreateBalanceTransferParams) error
 	CreateChain(ctx context.Context, chainID uuid.UUID, name string) error
 	CreateCredential(ctx context.Context, arg CreateCredentialParams) error
+	CreateMarket(ctx context.Context, arg CreateMarketParams) error
+	CreateOrder(ctx context.Context, arg CreateOrderParams) error
 	CreateToken(ctx context.Context, arg CreateTokenParams) error
 	CreateTokenChains(ctx context.Context, tokenID uuid.UUID, chainIds []uuid.UUID) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
@@ -32,6 +34,9 @@ type Querier interface {
 	GetChainByID(ctx context.Context, chainID uuid.UUID) (Chain, error)
 	GetChains(ctx context.Context, offset int32, limit int32) ([]Chain, error)
 	GetCredentialByID(ctx context.Context, credentialID uuid.UUID) (Credential, error)
+	GetMarketByID(ctx context.Context, marketID uuid.UUID) (Market, error)
+	GetMarketPair(ctx context.Context, tokenAID uuid.UUID, tokenBID uuid.UUID) (Market, error)
+	GetSupportedPairs(ctx context.Context, offset int32, limit int32) ([]GetSupportedPairsRow, error)
 	GetSupportedTokens(ctx context.Context, arg GetSupportedTokensParams) ([]GetSupportedTokensRow, error)
 	GetTokenBalanceByAccountID(ctx context.Context, arg GetTokenBalanceByAccountIDParams) ([]GetTokenBalanceByAccountIDRow, error)
 	GetTokenByID(ctx context.Context, tokenID uuid.UUID) (Token, error)
@@ -40,9 +45,11 @@ type Querier interface {
 	GetUserByID(ctx context.Context, userID uuid.UUID) (User, error)
 	GetUserCredentialByType(ctx context.Context, type_ credentials.Type, userID uuid.UUID) (Credential, error)
 	GetUserCredentials(ctx context.Context, userID uuid.UUID) ([]Credential, error)
+	GetUserOrderHistory(ctx context.Context, arg GetUserOrderHistoryParams) ([]Order, error)
 	IncreaseAccountBalance(ctx context.Context, arg IncreaseAccountBalanceParams) (uuid.UUID, error)
 	UpdateBalanceTransferStatus(ctx context.Context, status models.ChangeStatus, changeID uuid.UUID) error
 	UpdateCredentialSecret(ctx context.Context, secretData []byte, type_ credentials.Type) (Credential, error)
+	UpdateOrder(ctx context.Context, arg UpdateOrderParams) error
 	VerifyCredential(ctx context.Context, credentialID uuid.UUID) error
 }
 
