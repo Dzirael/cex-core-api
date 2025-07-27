@@ -19,7 +19,7 @@ type Querier interface {
 	CreateChain(ctx context.Context, chainID uuid.UUID, name string) error
 	CreateCredential(ctx context.Context, arg CreateCredentialParams) error
 	CreateToken(ctx context.Context, arg CreateTokenParams) error
-	CreateTokenChains(ctx context.Context, tokenID uuid.UUID, chainID uuid.UUID) error
+	CreateTokenChains(ctx context.Context, tokenID uuid.UUID, chainIds []uuid.UUID) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	DecreaseAccountBalance(ctx context.Context, arg DecreaseAccountBalanceParams) (DecreaseAccountBalanceRow, error)
 	DecreaseAccountLockedBalance(ctx context.Context, amount decimal.Decimal, balanceID uuid.UUID) error
@@ -29,11 +29,13 @@ type Querier interface {
 	GetAccountsByUserID(ctx context.Context, userID uuid.UUID) ([]Account, error)
 	GetBalanceChangeByID(ctx context.Context, changeID uuid.UUID) (AccountBalanceChange, error)
 	GetBalanceChanges(ctx context.Context, arg GetBalanceChangesParams) ([]AccountBalanceChange, error)
+	GetChainByID(ctx context.Context, chainID uuid.UUID) (Chain, error)
 	GetChains(ctx context.Context, offset int32, limit int32) ([]Chain, error)
 	GetCredentialByID(ctx context.Context, credentialID uuid.UUID) (Credential, error)
-	GetSupportedTokens(ctx context.Context, arg GetSupportedTokensParams) ([]Token, error)
+	GetSupportedTokens(ctx context.Context, arg GetSupportedTokensParams) ([]GetSupportedTokensRow, error)
 	GetTokenBalanceByAccountID(ctx context.Context, arg GetTokenBalanceByAccountIDParams) ([]GetTokenBalanceByAccountIDRow, error)
 	GetTokenByID(ctx context.Context, tokenID uuid.UUID) (Token, error)
+	GetTokenBySymbol(ctx context.Context, symbol string) (Token, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, userID uuid.UUID) (User, error)
 	GetUserCredentialByType(ctx context.Context, type_ credentials.Type, userID uuid.UUID) (Credential, error)

@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -48,13 +49,31 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) error 
 }
 
 const createTokenChains = `-- name: CreateTokenChains :exec
-INSERT INTO token_chains (token_id, chain_id) 
-VALUES ($1, $2)
+INSERT INTO token_chains (token_id, chain_id)
+SELECT $1, UNNEST($2::uuid[])
 `
 
-func (q *Queries) CreateTokenChains(ctx context.Context, tokenID uuid.UUID, chainID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, createTokenChains, tokenID, chainID)
+func (q *Queries) CreateTokenChains(ctx context.Context, tokenID uuid.UUID, chainIds []uuid.UUID) error {
+	_, err := q.db.Exec(ctx, createTokenChains, tokenID, chainIds)
 	return err
+}
+
+const getChainByID = `-- name: GetChainByID :one
+SELECT chain_id, name, created_at, updated_at, deleted_at FROM chains
+WHERE chain_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetChainByID(ctx context.Context, chainID uuid.UUID) (Chain, error) {
+	row := q.db.QueryRow(ctx, getChainByID, chainID)
+	var i Chain
+	err := row.Scan(
+		&i.ChainID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
 const getChains = `-- name: GetChains :many
@@ -91,25 +110,50 @@ func (q *Queries) GetChains(ctx context.Context, offset int32, limit int32) ([]C
 }
 
 const getSupportedTokens = `-- name: GetSupportedTokens :many
-SELECT t.token_id, t.is_native, t.name, t.symbol, t.decimals, t.logo_path, t.created_at, t.updated_at, t.deleted_at
+SELECT DISTINCT ON (t.token_id)
+  t.token_id, t.is_native, t.name, t.symbol, t.decimals, t.logo_path, t.created_at, t.updated_at, t.deleted_at,
+  (
+    SELECT ARRAY_AGG(tc2.chain_id)::uuid[]
+    FROM token_chains tc2
+    WHERE tc2.token_id = t.token_id
+  ) AS chain_ids
 FROM tokens t
 JOIN token_chains tc ON t.token_id = tc.token_id
 WHERE 
-  ($1::uuid IS NULL OR tc.chain_id = $1) AND
-  ($2::boolean IS NULL OR t.is_native = $2) AND
-  t.deleted_at IS NULL
-ORDER BY t.created_at DESC
+  (
+    tc.chain_id = $1
+    OR $1 IS NULL
+  ) 
+  AND (
+    t.is_native = $2
+    OR $2 IS NULL
+  )
+  AND t.deleted_at IS NULL
+ORDER BY t.token_id, t.created_at DESC
 LIMIT $4 OFFSET $3
 `
 
 type GetSupportedTokensParams struct {
-	ChainID  uuid.UUID `db:"chain_id"`
-	IsNative bool      `db:"is_native"`
-	Offset   int32     `db:"offset"`
-	Limit    int32     `db:"limit"`
+	ChainID  *uuid.UUID `db:"chain_id"`
+	IsNative *bool      `db:"is_native"`
+	Offset   int32      `db:"offset"`
+	Limit    int32      `db:"limit"`
 }
 
-func (q *Queries) GetSupportedTokens(ctx context.Context, arg GetSupportedTokensParams) ([]Token, error) {
+type GetSupportedTokensRow struct {
+	TokenID   uuid.UUID   `db:"token_id"`
+	IsNative  bool        `db:"is_native"`
+	Name      string      `db:"name"`
+	Symbol    string      `db:"symbol"`
+	Decimals  int32       `db:"decimals"`
+	LogoPath  *string     `db:"logo_path"`
+	CreatedAt time.Time   `db:"created_at"`
+	UpdatedAt time.Time   `db:"updated_at"`
+	DeletedAt *time.Time  `db:"deleted_at"`
+	ChainIds  []uuid.UUID `db:"chain_ids"`
+}
+
+func (q *Queries) GetSupportedTokens(ctx context.Context, arg GetSupportedTokensParams) ([]GetSupportedTokensRow, error) {
 	rows, err := q.db.Query(ctx, getSupportedTokens,
 		arg.ChainID,
 		arg.IsNative,
@@ -120,9 +164,9 @@ func (q *Queries) GetSupportedTokens(ctx context.Context, arg GetSupportedTokens
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Token{}
+	items := []GetSupportedTokensRow{}
 	for rows.Next() {
-		var i Token
+		var i GetSupportedTokensRow
 		if err := rows.Scan(
 			&i.TokenID,
 			&i.IsNative,
@@ -133,6 +177,7 @@ func (q *Queries) GetSupportedTokens(ctx context.Context, arg GetSupportedTokens
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.ChainIds,
 		); err != nil {
 			return nil, err
 		}
@@ -151,6 +196,28 @@ WHERE token_id = $1 AND deleted_at IS NULL
 
 func (q *Queries) GetTokenByID(ctx context.Context, tokenID uuid.UUID) (Token, error) {
 	row := q.db.QueryRow(ctx, getTokenByID, tokenID)
+	var i Token
+	err := row.Scan(
+		&i.TokenID,
+		&i.IsNative,
+		&i.Name,
+		&i.Symbol,
+		&i.Decimals,
+		&i.LogoPath,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getTokenBySymbol = `-- name: GetTokenBySymbol :one
+SELECT token_id, is_native, name, symbol, decimals, logo_path, created_at, updated_at, deleted_at FROM tokens
+WHERE symbol = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetTokenBySymbol(ctx context.Context, symbol string) (Token, error) {
+	row := q.db.QueryRow(ctx, getTokenBySymbol, symbol)
 	var i Token
 	err := row.Scan(
 		&i.TokenID,
